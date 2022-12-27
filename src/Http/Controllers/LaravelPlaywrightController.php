@@ -15,16 +15,22 @@ class LaravelPlaywrightController
     public function migrate(Request $request)
     {
         Artisan::call(command: 'migrate:fresh'.($request->boolean('seed') ? ' --seed' : ''));
+
+        return response()->json(Artisan::output());
     }
 
     public function setupEnv()
     {
-        return Artisan::call(command: 'playwright:env-setup');
+        Artisan::call(command: 'playwright:env-setup');
+
+        return response()->json(Artisan::output());
     }
 
     public function tearDownEnv()
     {
-        return Artisan::call(command: 'playwright:env-teardown');
+        Artisan::call(command: 'playwright:env-teardown');
+
+        return response()->json(Artisan::output());
     }
 
     public function routes(Request $request)
@@ -130,10 +136,14 @@ class LaravelPlaywrightController
 
     public function artisan(Request $request)
     {
+        $request->validate(['command' => 'required']);
+
         Artisan::call(
             command: $request->input('command'),
             parameters: $request->input('parameters', [])
         );
+
+        return response()->json(Artisan::output());
     }
 
     public function csrf()

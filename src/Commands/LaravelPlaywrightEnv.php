@@ -4,6 +4,8 @@ namespace Leeovery\LaravelPlaywright\Commands;
 
 use Dotenv\Dotenv;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 abstract class LaravelPlaywrightEnv extends Command
 {
@@ -37,6 +39,9 @@ abstract class LaravelPlaywrightEnv extends Command
 
     protected function refreshEnvironment(): void
     {
+        Artisan::call('config:clear');
         Dotenv::createMutable(base_path())->load();
+        DB::reconnect();
+        Artisan::call('config:cache');
     }
 }
