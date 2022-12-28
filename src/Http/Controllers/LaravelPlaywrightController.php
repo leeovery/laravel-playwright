@@ -2,6 +2,7 @@
 
 namespace Leeovery\LaravelPlaywright\Http\Controllers;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route as RoutingRoute;
@@ -14,23 +15,36 @@ class LaravelPlaywrightController
 {
     public function migrate(Request $request)
     {
-        Artisan::call(command: 'migrate:fresh'.($request->boolean('seed') ? ' --seed' : ''));
+        try {
+            Artisan::call('migrate:fresh --schema-path=false'.($request->boolean('seed') ? ' --seed' : ''));
+        } catch (Exception $exception) {
+            return response()->json($exception->getMessage(), 500);
+        }
 
-        return response()->json(Artisan::output());
+        return response()->json(Artisan::output(), 202);
     }
 
     public function setupEnv()
     {
-        Artisan::call(command: 'playwright:env-setup');
+        try {
+            Artisan::call('playwright:env-setup');
+            sleep(2);
+        } catch (Exception $exception) {
+            return response()->json($exception->getMessage(), 500);
+        }
 
-        return response()->json(Artisan::output());
+        return response()->json(null, 202);
     }
 
     public function tearDownEnv()
     {
-        Artisan::call(command: 'playwright:env-teardown');
+        try {
+            Artisan::call('playwright:env-teardown');
+        } catch (Exception $exception) {
+            return response()->json($exception->getMessage(), 500);
+        }
 
-        return response()->json(Artisan::output());
+        return response()->json(null, 202);
     }
 
     public function routes(Request $request)
@@ -138,12 +152,16 @@ class LaravelPlaywrightController
     {
         $request->validate(['command' => 'required']);
 
-        Artisan::call(
-            command: $request->input('command'),
-            parameters: $request->input('parameters', [])
-        );
+        try {
+            Artisan::call(
+                command: $request->input('command'),
+                parameters: $request->input('parameters', [])
+            );
+        } catch (Exception $exception) {
+            abort($exception->getCode(), $exception->getMessage());
+        }
 
-        return response()->json(Artisan::output());
+        return response()->json(Artisan::output(), 202);
     }
 
     public function csrf()

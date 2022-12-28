@@ -10,7 +10,7 @@ class LaravelPlaywrightEnvTeardown extends LaravelPlaywrightEnv
 
     public function handle()
     {
-        if (file_exists(base_path('.env.backup'))) {
+        if (file_exists(base_path($this->backupEnvName))) {
             $this->restoreEnvironment();
             $this->refreshEnvironment();
         }

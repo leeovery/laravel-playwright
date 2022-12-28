@@ -1,14 +1,10 @@
 <?php
 
-namespace Leeovery\LaravelPlaywright\Commands;
+namespace Leeovery\LaravelPlaywright\Actions;
 
-class LaravelPlaywrightEnvSetup extends LaravelPlaywrightEnv
+class EnvSetupAction extends BaseEnvAction
 {
-    protected $signature = 'playwright:env-setup';
-
-    protected $description = 'Setup temp env for frontend Playwright test suite.';
-
-    public function handle()
+    public function __invoke()
     {
         if (! file_exists($envFile = base_path($this->getPlaywrightEnvFile()))) {
             return;
