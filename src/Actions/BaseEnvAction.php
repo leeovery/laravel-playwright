@@ -1,17 +1,14 @@
 <?php
 
-namespace Leeovery\LaravelPlaywright\Commands;
+namespace Leeovery\LaravelPlaywright\Actions;
 
 use Dotenv\Dotenv;
-use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 
-abstract class LaravelPlaywrightEnv extends Command
+abstract class BaseEnvAction
 {
     protected string $backupEnvName = '.env.backup';
-
-    abstract public function handle();
 
     protected function restoreEnvironment(): void
     {
@@ -28,7 +25,8 @@ abstract class LaravelPlaywrightEnv extends Command
     protected function getPlaywrightEnvFile(): string
     {
         $envName = config('laravel-playwright.env.name');
-        if (file_exists(base_path($file = "{$envName}.{$this->laravel->environment()}"))) {
+        $environment = app()->environment();
+        if (file_exists(base_path($file = "{$envName}.{$environment}"))) {
             return $file;
         }
 
