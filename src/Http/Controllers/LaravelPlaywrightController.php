@@ -176,7 +176,10 @@ class LaravelPlaywrightController
     public function artisan(Request $request)
     {
         $request->validate([
-            'command' => ['required'],
+            'command' => [
+                'required',
+                'string',
+            ],
             'parameters' => [
                 'nullable',
                 'array',
