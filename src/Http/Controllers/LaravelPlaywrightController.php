@@ -28,7 +28,7 @@ class LaravelPlaywrightController
     {
         try {
             Artisan::call('playwright:env-setup');
-            usleep(500);
+            sleep(1);
         } catch (Exception $exception) {
             return response()->json($exception->getMessage(), 500);
         }
