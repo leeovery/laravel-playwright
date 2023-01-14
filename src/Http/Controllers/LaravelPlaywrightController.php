@@ -35,7 +35,9 @@ class LaravelPlaywrightController
         ]);
 
         try {
-            DB::table($request->input('table'))->truncate();
+            str($request->input('table'))->explode(',')->each(function (string $table) {
+                DB::table($table)->truncate();
+            });
         } catch (Exception $exception) {
             return response()->json($exception->getMessage(), 500);
         }
