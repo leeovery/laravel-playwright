@@ -41,9 +41,9 @@ abstract class LaravelPlaywrightEnv extends Command
 
     protected function refreshEnvironment(): void
     {
-        Artisan::call('optimize:clear');
-        Dotenv::createMutable(base_path())->load();
-        Artisan::call('optimize');
-        DB::reconnect();
+//        Artisan::call('optimize:clear');
+//        Dotenv::createMutable(base_path())->load();
+//        Artisan::call('optimize');
+//        DB::reconnect();
     }
 }
