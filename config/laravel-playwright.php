@@ -7,7 +7,7 @@ return [
      * routes exposed for. Any requests made to the routes in an environment which is
      * not in this list will be rejected.
      */
-    'environments' => env('LARAVEL_PLAYWRIGHT_PERMITTED_ENVIRONMENTS', 'playwright'),
+    'environments' => env('LARAVEL_PLAYWRIGHT_PERMITTED_ENVIRONMENTS', 'local,testing,playwright'),
 
     'route' => [
 

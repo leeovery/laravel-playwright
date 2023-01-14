@@ -8,14 +8,12 @@ class PreventInNonPermittedEnvironment
 {
     public function handle($request, Closure $next)
     {
-        dd('hello');
-        str(config('laravel-playwright.environments'))
+        $permitted = str(config('laravel-playwright.environments'))
             ->explode(',')
             ->collect()
-            ->filter(fn(string $environment) => app()->environment($environment))
-            ->whenEmpty(function () {
-                abort('404');
-            });
+            ->filter(fn(string $environment) => app()->environment($environment));
+
+        abort_if($permitted->isEmpty(), '404', 'Environment not supported');
 
         return $next($request);
     }
