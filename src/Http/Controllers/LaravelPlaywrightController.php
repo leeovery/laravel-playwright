@@ -3,6 +3,7 @@
 namespace Leeovery\LaravelPlaywright\Http\Controllers;
 
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route as RoutingRoute;
@@ -17,6 +18,24 @@ class LaravelPlaywrightController
     {
         try {
             Artisan::call('migrate:fresh --schema-path=false'.($request->boolean('seed') ? ' --seed' : ''));
+        } catch (Exception $exception) {
+            return response()->json($exception->getMessage(), 500);
+        }
+
+        return response()->json(Artisan::output(), 202);
+    }
+
+    public function truncate(Request $request)
+    {
+        $request->validate([
+            'table' => [
+                'required',
+                'string',
+            ],
+        ]);
+
+        try {
+            DB::table($request->input('table'))->truncate();
         } catch (Exception $exception) {
             return response()->json($exception->getMessage(), 500);
         }

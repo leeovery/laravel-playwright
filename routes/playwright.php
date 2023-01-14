@@ -2,9 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use Leeovery\LaravelPlaywright\Http\Controllers\LaravelPlaywrightController;
+use Leeovery\LaravelPlaywright\Http\Middleware\PreventInNonPermittedEnvironment;
 
 Route::prefix(config('laravel-playwright.route.prefix'))
-    ->middleware(config('laravel-playwright.route.middleware'))
+    ->middleware([
+        PreventInNonPermittedEnvironment::class,
+        config('laravel-playwright.route.middleware'),
+    ])
     ->group(function () {
         Route::post('/env-setup', [LaravelPlaywrightController::class, 'setupEnv'])
             ->name('playwright.setup-env');

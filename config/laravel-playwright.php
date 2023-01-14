@@ -2,6 +2,13 @@
 
 return [
 
+    /**
+     * Comma seperated list of valid environments which you want the Laravel Playwright
+     * routes exposed for. Any requests made to the routes in an environment which is
+     * not in this list will be rejected.
+     */
+    'environments' => env('LARAVEL_PLAYWRIGHT_PERMITTED_ENVIRONMENTS', 'playwright'),
+
     'route' => [
 
         /**
