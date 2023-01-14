@@ -8,6 +8,7 @@ class PreventInNonPermittedEnvironment
 {
     public function handle($request, Closure $next)
     {
+        dd('hello');
         str(config('laravel-playwright.environments'))
             ->explode(',')
             ->collect()
