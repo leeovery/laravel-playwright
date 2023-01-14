@@ -3,14 +3,14 @@
 namespace Leeovery\LaravelPlaywright\Http\Controllers;
 
 use Exception;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Routing\Route as RoutingRoute;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class LaravelPlaywrightController
 {
@@ -40,14 +40,13 @@ class LaravelPlaywrightController
             return response()->json($exception->getMessage(), 500);
         }
 
-        return response()->json(Artisan::output(), 202);
+        return response(status: 202);
     }
 
     public function setupEnv()
     {
         try {
             Artisan::call('playwright:env-setup');
-            sleep(1);
         } catch (Exception $exception) {
             return response()->json($exception->getMessage(), 500);
         }
@@ -69,11 +68,11 @@ class LaravelPlaywrightController
     public function routes(Request $request)
     {
         return collect(Route::getRoutes()->getRoutes())
-            ->reject(fn (RoutingRoute $route) => Str::of($route->getName())
+            ->reject(fn(RoutingRoute $route) => Str::of($route->getName())
                 ->contains(config('laravel-playwright.route.ignore_names'))
             )
-            ->reject(fn (RoutingRoute $route) => is_null($route->getName()))
-            ->mapWithKeys(fn (RoutingRoute $route) => [
+            ->reject(fn(RoutingRoute $route) => is_null($route->getName()))
+            ->mapWithKeys(fn(RoutingRoute $route) => [
                 $route->getName() => [
                     'name' => $route->getName(),
                     'uri' => $route->uri(),
@@ -100,7 +99,7 @@ class LaravelPlaywrightController
                 ->first();
         }
 
-        if (! $user) {
+        if (!$user) {
             $user = $this
                 ->factoryBuilder($this->userClassName($request), $request->input('state', []))
                 ->create();
@@ -178,7 +177,7 @@ class LaravelPlaywrightController
             )
             ->count($request->integer('count', 1))
             ->create($request->input('attributes'))
-            ->each(fn ($model) => $model->setHidden([])->setVisible([]))
+            ->each(fn($model) => $model->setHidden([])->setVisible([]))
             ->load($request->input('load', []))
             ->pipe(function ($collection) {
                 return $collection->count() > 1
