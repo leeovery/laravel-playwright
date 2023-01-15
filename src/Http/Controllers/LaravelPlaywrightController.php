@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpPossiblePolymorphicInvocationInspection */
 
 namespace Leeovery\LaravelPlaywright\Http\Controllers;
 
@@ -67,7 +67,7 @@ class LaravelPlaywrightController
         return response()->json(null, 202);
     }
 
-    public function routes(Request $request)
+    public function routes()
     {
         return collect(Route::getRoutes()->getRoutes())
             ->reject(fn(RoutingRoute $route) => Str::of($route->getName())
@@ -86,7 +86,9 @@ class LaravelPlaywrightController
 
     public function user()
     {
-        return auth()->user()?->setHidden([])->setVisible([]);
+        return response()->json([
+            'data' => auth()->user()?->setHidden([])->setVisible([])
+        ]);
     }
 
     public function login(Request $request)
@@ -153,14 +155,14 @@ class LaravelPlaywrightController
                 'required',
                 'string',
             ],
-            'state' => [
-                'nullable',
-                'array',
-            ],
             'count' => [
                 'nullable',
                 'integer',
                 'min:1',
+            ],
+            'state' => [
+                'nullable',
+                'array',
             ],
             'attributes' => [
                 'nullable',
@@ -181,11 +183,9 @@ class LaravelPlaywrightController
             ->create($request->input('attributes'))
             ->each(fn($model) => $model->setHidden([])->setVisible([]))
             ->load($request->input('load', []))
-            ->pipe(function ($collection) {
-                return $collection->count() > 1
-                    ? $collection
-                    : $collection->first();
-            });
+            ->pipe(fn($collection) => $collection->count() > 1
+                ? $collection
+                : $collection->first());
     }
 
     public function logout()
