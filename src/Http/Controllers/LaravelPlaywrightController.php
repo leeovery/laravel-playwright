@@ -88,9 +88,7 @@ class LaravelPlaywrightController
 
     public function user()
     {
-        return response()->json([
-            'data' => auth()->user()?->setHidden([])->setVisible([]),
-        ]);
+        return response()->json(auth()->user()?->setHidden([])->setVisible([]));
     }
 
     public function login(Request $request)
