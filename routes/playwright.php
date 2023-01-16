@@ -16,6 +16,8 @@ Route::prefix(config('laravel-playwright.route.prefix'))
             ->name('playwright.tear-down-env');
         Route::post('/migrate', [LaravelPlaywrightController::class, 'migrate'])
             ->name('playwright.migrate');
+        Route::post('/create-database', [LaravelPlaywrightController::class, 'createDatabase'])
+            ->name('playwright.create-database');
         Route::post('/truncate', [LaravelPlaywrightController::class, 'truncate'])
             ->name('playwright.truncate');
         Route::post('/factory', [LaravelPlaywrightController::class, 'factory'])
