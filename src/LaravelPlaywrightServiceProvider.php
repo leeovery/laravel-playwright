@@ -2,13 +2,13 @@
 
 namespace Leeovery\LaravelPlaywright;
 
-use Leeovery\LaravelPlaywright\Commands\Database\CreateDatabaseCommand;
-use Leeovery\LaravelPlaywright\Commands\Database\DropDatabaseCommand;
-use Leeovery\LaravelPlaywright\Commands\Database\ReCreateDatabaseCommand;
+use Spatie\LaravelPackageTools\Package;
 use Leeovery\LaravelPlaywright\Commands\LaravelPlaywrightEnvSetup;
 use Leeovery\LaravelPlaywright\Commands\LaravelPlaywrightEnvTeardown;
-use Spatie\LaravelPackageTools\Package;
+use Leeovery\LaravelPlaywright\Commands\Database\DropDatabaseCommand;
+use Leeovery\LaravelPlaywright\Commands\Database\CreateDatabaseCommand;
 use Spatie\LaravelPackageTools\PackageServiceProvider as ServiceProvider;
+use Leeovery\LaravelPlaywright\Commands\Database\ReCreateDatabaseCommand;
 
 class LaravelPlaywrightServiceProvider extends ServiceProvider
 {
@@ -23,7 +23,6 @@ class LaravelPlaywrightServiceProvider extends ServiceProvider
                 LaravelPlaywrightEnvTeardown::class,
                 CreateDatabaseCommand::class,
                 DropDatabaseCommand::class,
-                ReCreateDatabaseCommand::class,
             );
     }
 }
