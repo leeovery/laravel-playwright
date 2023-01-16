@@ -59,8 +59,6 @@ class LaravelPlaywrightController
             $options['--pretend'] = true;
         }
 
-        ray($options);
-
         return $options;
     }
 

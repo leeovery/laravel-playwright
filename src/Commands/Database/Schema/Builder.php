@@ -14,9 +14,9 @@ readonly class Builder
     {
         $grammar = $this->grammars->make($options['driver']);
 
-        return ray()->pass($this->connector->exec(
+        return $this->connector->exec(
             $grammar->compileDropDatabase($options['database'])
-        ));
+        );
     }
 
     public function createDatabase(array $options)
