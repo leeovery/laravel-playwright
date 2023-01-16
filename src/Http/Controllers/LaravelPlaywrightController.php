@@ -190,6 +190,9 @@ class LaravelPlaywrightController
                 'nullable',
                 'array',
             ],
+            'load.*' => [
+                'string',
+            ],
         ]);
 
         return $this
