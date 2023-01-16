@@ -11,7 +11,7 @@ use Leeovery\LaravelPlaywright\Commands\Database\Schema\GrammarFactory;
 
 abstract class AbstractDatabaseCommand extends Command
 {
-    protected array $config;
+    protected array $config = [];
 
     protected function showIfPretendMode()
     {

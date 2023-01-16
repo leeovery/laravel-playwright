@@ -2,10 +2,7 @@
 
 namespace Leeovery\LaravelPlaywright\Commands;
 
-use Dotenv\Dotenv;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 
 abstract class LaravelPlaywrightEnv extends Command
 {

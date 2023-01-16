@@ -10,23 +10,13 @@ readonly class Builder
     {
     }
 
-    public function recreateDatabase(array $options)
-    {
-        $result = $this->dropDatabase($options);
-        if ($result) {
-            $result = $this->createDatabase($options);
-        }
-
-        return $result;
-    }
-
     public function dropDatabase(array $options)
     {
         $grammar = $this->grammars->make($options['driver']);
 
-        return $this->connector->exec(
+        return ray()->pass($this->connector->exec(
             $grammar->compileDropDatabase($options['database'])
-        );
+        ));
     }
 
     public function createDatabase(array $options)

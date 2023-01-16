@@ -15,14 +15,14 @@ class CreateDatabaseCommand extends AbstractDatabaseCommand
     {
         $this->showIfPretendMode();
 
-        if ($this->createBuilder()->createDatabase($this->getConfig())) {
-            $this->info(sprintf('Database "%s" created successfully.', $this->getConfig('database')));
+        if ($this->createBuilder()->createDatabase($this->getConfig()) === false) {
+            $this->error('Could not create the database.');
 
-            return 0;
+            return 1;
         }
 
-        $this->error('Could not create the database.');
+        $this->info(sprintf('Database "%s" created successfully.', $this->getConfig('database')));
 
-        return 1;
+        return 0;
     }
 }

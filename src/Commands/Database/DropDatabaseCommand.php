@@ -15,14 +15,14 @@ class DropDatabaseCommand extends AbstractDatabaseCommand
     {
         $this->showIfPretendMode();
 
-        if ($this->createBuilder()->dropDatabase($this->getConfig())) {
-            $this->info(sprintf('Database "%s" dropped successfully.', $this->getConfig('database')));
+        if ($this->createBuilder()->dropDatabase($this->getConfig()) === false) {
+            $this->error('Could not drop the database.');
 
-            return 0;
+            return 1;
         }
 
-        $this->error('Could not drop the database.');
+        $this->info(sprintf('Database "%s" dropped successfully.', $this->getConfig('database')));
 
-        return 1;
+        return 0;
     }
 }
