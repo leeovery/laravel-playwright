@@ -4,43 +4,32 @@
 
 namespace Leeovery\LaravelPlaywright\Http\Controllers;
 
-use Exception;
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Routing\Route as RoutingRoute;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class LaravelPlaywrightController
 {
     public function migrate(Request $request)
     {
-        try {
-            Artisan::call('migrate:fresh --schema-path=false'.($request->boolean('seed') ? ' --seed' : ''));
-        } catch (Exception $exception) {
-            return response()->json($exception->getMessage(), 500);
-        }
+        Artisan::call('migrate:fresh --schema-path=false'.($request->boolean('seed') ? ' --seed' : ''));
 
         return response()->json(Artisan::output(), 202);
     }
 
     public function createDatabase(Request $request)
     {
-        $options = $this->handleDatabaseRequest($request);
-
-        try {
-            Artisan::call('db:create', $options);
-        } catch (Exception $exception) {
-            return response()->json($exception->getMessage(), 500);
-        }
+        Artisan::call('db:create', $this->handleDatabaseRequest($request));
 
         return response()->json(Artisan::output(), 202);
     }
 
-    private function handleDatabaseRequest(Request $request)
+    private function handleDatabaseRequest(Request $request): array
     {
         $request->validate([
             'database' => [
@@ -70,18 +59,14 @@ class LaravelPlaywrightController
             $options['--pretend'] = true;
         }
 
+        ray($options);
+
         return $options;
     }
 
     public function dropDatabase(Request $request)
     {
-        $options = $this->handleDatabaseRequest($request);
-
-        try {
-            Artisan::call('db:drop', $options);
-        } catch (Exception $exception) {
-            return response()->json($exception->getMessage(), 500);
-        }
+        Artisan::call('db:drop', $this->handleDatabaseRequest($request));
 
         return response()->json(Artisan::output(), 202);
     }
@@ -95,47 +80,35 @@ class LaravelPlaywrightController
             ],
         ]);
 
-        try {
-            str($request->input('tables'))->explode(',')->each(function (string $table) {
-                DB::table($table)->truncate();
-            });
-        } catch (Exception $exception) {
-            return response()->json($exception->getMessage(), 500);
-        }
+        str($request->input('tables'))->explode(',')->each(function (string $table) {
+            DB::table($table)->truncate();
+        });
 
         return response(status: 202);
     }
 
     public function setupEnv()
     {
-        try {
-            Artisan::call('playwright:env-setup');
-        } catch (Exception $exception) {
-            return response()->json($exception->getMessage(), 500);
-        }
+        Artisan::call('playwright:env-setup');
 
-        return response()->json(null, 202);
+        return response()->json(Artisan::output(), 202);
     }
 
     public function tearDownEnv()
     {
-        try {
-            Artisan::call('playwright:env-teardown');
-        } catch (Exception $exception) {
-            return response()->json($exception->getMessage(), 500);
-        }
+        Artisan::call('playwright:env-teardown');
 
-        return response()->json(null, 202);
+        return response()->json(Artisan::output(), 202);
     }
 
     public function routes()
     {
         return collect(Route::getRoutes()->getRoutes())
-            ->reject(fn (RoutingRoute $route) => Str::of($route->getName())
+            ->reject(fn(RoutingRoute $route) => Str::of($route->getName())
                 ->contains(config('laravel-playwright.route.ignore_names'))
             )
-            ->reject(fn (RoutingRoute $route) => is_null($route->getName()))
-            ->mapWithKeys(fn (RoutingRoute $route) => [
+            ->reject(fn(RoutingRoute $route) => is_null($route->getName()))
+            ->mapWithKeys(fn(RoutingRoute $route) => [
                 $route->getName() => [
                     'name' => $route->getName(),
                     'uri' => $route->uri(),
@@ -162,7 +135,7 @@ class LaravelPlaywrightController
                 ->first();
         }
 
-        if (! $user) {
+        if (!$user) {
             $user = $this
                 ->factoryBuilder($this->userClassName($request), $request->input('state', []))
                 ->create();
@@ -205,7 +178,7 @@ class LaravelPlaywrightController
                     $modelSeparator,
                     $stateSeparator
                 ) {
-                    if (! is_string($attribute) || ! str_contains($attribute, $stateSeparator)) {
+                    if (!is_string($attribute) || !str_contains($attribute, $stateSeparator)) {
                         return $attribute;
                     }
 
@@ -261,9 +234,9 @@ class LaravelPlaywrightController
             )
             ->count($request->integer('count', 1))
             ->create($request->input('attributes'))
-            ->each(fn ($model) => $model->setHidden([])->setVisible([]))
+            ->each(fn($model) => $model->setHidden([])->setVisible([]))
             ->load($request->input('load') ?? [])
-            ->pipe(fn ($collection) => $collection->count() > 1
+            ->pipe(fn($collection) => $collection->count() > 1
                 ? $collection
                 : $collection->first());
     }
@@ -286,14 +259,10 @@ class LaravelPlaywrightController
             ],
         ]);
 
-        try {
-            Artisan::call(
-                command: $request->input('command'),
-                parameters: $request->input('parameters', [])
-            );
-        } catch (Exception $exception) {
-            abort(400, $exception->getMessage());
-        }
+        Artisan::call(
+            command: $request->input('command'),
+            parameters: $request->input('parameters', [])
+        );
 
         return response()->json(Artisan::output(), 202);
     }
