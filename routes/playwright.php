@@ -18,8 +18,8 @@ Route::prefix(config('laravel-playwright.route.prefix'))
             ->name('playwright.migrate');
         Route::post('/create-database', [LaravelPlaywrightController::class, 'createDatabase'])
             ->name('playwright.create-database');
-        Route::post('/refresh-database', [LaravelPlaywrightController::class, 'refreshDatabase'])
-            ->name('playwright.refresh-database');
+        Route::post('/drop-database', [LaravelPlaywrightController::class, 'dropDatabase'])
+            ->name('playwright.drop-database');
         Route::post('/truncate', [LaravelPlaywrightController::class, 'truncate'])
             ->name('playwright.truncate');
         Route::post('/factory', [LaravelPlaywrightController::class, 'factory'])
