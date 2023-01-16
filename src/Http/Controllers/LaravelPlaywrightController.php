@@ -1,16 +1,18 @@
-<?php /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+<?php
+
+/** @noinspection PhpPossiblePolymorphicInvocationInspection */
 
 namespace Leeovery\LaravelPlaywright\Http\Controllers;
 
 use Exception;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route as RoutingRoute;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Routing\Route as RoutingRoute;
-use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class LaravelPlaywrightController
 {
@@ -28,14 +30,14 @@ class LaravelPlaywrightController
     public function truncate(Request $request)
     {
         $request->validate([
-            'table' => [
+            'tables' => [
                 'required',
                 'string',
             ],
         ]);
 
         try {
-            str($request->input('table'))->explode(',')->each(function (string $table) {
+            str($request->input('tables'))->explode(',')->each(function (string $table) {
                 DB::table($table)->truncate();
             });
         } catch (Exception $exception) {
@@ -70,11 +72,11 @@ class LaravelPlaywrightController
     public function routes()
     {
         return collect(Route::getRoutes()->getRoutes())
-            ->reject(fn(RoutingRoute $route) => Str::of($route->getName())
+            ->reject(fn (RoutingRoute $route) => Str::of($route->getName())
                 ->contains(config('laravel-playwright.route.ignore_names'))
             )
-            ->reject(fn(RoutingRoute $route) => is_null($route->getName()))
-            ->mapWithKeys(fn(RoutingRoute $route) => [
+            ->reject(fn (RoutingRoute $route) => is_null($route->getName()))
+            ->mapWithKeys(fn (RoutingRoute $route) => [
                 $route->getName() => [
                     'name' => $route->getName(),
                     'uri' => $route->uri(),
@@ -87,7 +89,7 @@ class LaravelPlaywrightController
     public function user()
     {
         return response()->json([
-            'data' => auth()->user()?->setHidden([])->setVisible([])
+            'data' => auth()->user()?->setHidden([])->setVisible([]),
         ]);
     }
 
@@ -103,7 +105,7 @@ class LaravelPlaywrightController
                 ->first();
         }
 
-        if (!$user) {
+        if (! $user) {
             $user = $this
                 ->factoryBuilder($this->userClassName($request), $request->input('state', []))
                 ->create();
@@ -136,10 +138,28 @@ class LaravelPlaywrightController
     {
         $factory = $this->resolveModelAlias($model)::factory();
 
-        foreach (Arr::wrap($states) as $state => $attributes) {
-            if (is_int($state)) {
-                $state = $attributes;
-                $attributes = [];
+        $stateSeparator = config('laravel-playwright.factory.state_separator');
+        $modelSeparator = config('laravel-playwright.factory.model_separator');
+
+        foreach (Arr::wrap($states) as $state) {
+            $attributes = [];
+            if (is_array($state)) {
+                $attributes = collect(array_values($state)[0])->map(function ($attribute) use (
+                    $modelSeparator,
+                    $stateSeparator
+                ) {
+                    if (! str_contains($attribute, $stateSeparator)) {
+                        return $attribute;
+                    }
+
+                    [$model, $id] = explode($stateSeparator, $attribute);
+                    [$id, $column] = explode($modelSeparator, $id);
+                    $column ??= 'id';
+
+                    return $this->resolveModelAlias($model)::where($column, $id)->first();
+                })->filter()->all();
+
+                $state = array_key_first($state);
             }
 
             $factory = $factory->{$state}(...Arr::wrap($attributes));
@@ -177,13 +197,13 @@ class LaravelPlaywrightController
         return $this
             ->factoryBuilder(
                 model: $request->input('model'),
-                states: $request->input('state', [])
+                states: $request->input('state') ?? []
             )
             ->count($request->integer('count', 1))
             ->create($request->input('attributes'))
-            ->each(fn($model) => $model->setHidden([])->setVisible([]))
-            ->load($request->input('load', []))
-            ->pipe(fn($collection) => $collection->count() > 1
+            ->each(fn ($model) => $model->setHidden([])->setVisible([]))
+            ->load($request->input('load') ?? [])
+            ->pipe(fn ($collection) => $collection->count() > 1
                 ? $collection
                 : $collection->first());
     }

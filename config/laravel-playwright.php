@@ -59,6 +59,25 @@ return [
         'user' => 'App\\Models\\User',
 
         /**
+         * When passing state values to the factory, you can include a model or model alias (see
+         * below) along with a value and column. This is handy for when the state method on the
+         * factory expects a model as the parameter. These config values will be used as the
+         * separators to split the model/alias from the id and column.
+         *
+         * eg:
+         * This will trigger the "first" eloquent method to execute with a "where"
+         * for the user with an id of 100. This User will then be passed to the
+         * "createdBy" method on the factory.
+         * $state = [
+         *     'createdBy' => [
+         *         ['user@100:id'],
+         *     ]
+         * ]
+         */
+        'state_separator' => '@',
+        'model_separator' => ':',
+
+        /**
          * You can optionally register aliases for your domain models rather than having
          * to provide the fully namespaced class name, you can then provide the alias
          * when creating entities via the factory endpoint.
