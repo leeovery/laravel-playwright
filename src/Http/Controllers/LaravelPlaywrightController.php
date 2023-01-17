@@ -17,7 +17,6 @@ class LaravelPlaywrightController
 {
     public function migrate(Request $request)
     {
-        ray(config('database.connections.mysql.database'));
         Artisan::call('migrate:fresh --schema-path=false'.($request->boolean('seed') ? ' --seed' : ''));
 
         return response()->json(Artisan::output(), 202);
