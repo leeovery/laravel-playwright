@@ -1,23 +1,40 @@
 <?php
 
-/** @noinspection PhpPossiblePolymorphicInvocationInspection */
-
 namespace Leeovery\LaravelPlaywright\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Routing\Route as RoutingRoute;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class LaravelPlaywrightController
 {
     public function migrate(Request $request)
     {
-        Artisan::call('migrate:fresh --schema-path=false'.($request->boolean('seed') ? ' --seed' : ''));
+        $request->validate([
+            'seed' => [
+                'nullable',
+                'bool',
+            ],
+            'fresh' => [
+                'nullable',
+                'bool',
+            ],
+        ]);
+
+        $command = 'migrate';
+        if ($request->boolean('fresh')) {
+            $command .= ':fresh';
+        }
+        if ($request->boolean('seed')) {
+            $command .= ' --seed';
+        }
+
+        Artisan::call("{$command} --schema-path=false");
 
         return response()->json(Artisan::output(), 202);
     }
@@ -102,11 +119,11 @@ class LaravelPlaywrightController
     public function routes()
     {
         return collect(Route::getRoutes()->getRoutes())
-            ->reject(fn (RoutingRoute $route) => Str::of($route->getName())
+            ->reject(fn(RoutingRoute $route) => Str::of($route->getName())
                 ->contains(config('laravel-playwright.route.ignore_names'))
             )
-            ->reject(fn (RoutingRoute $route) => is_null($route->getName()))
-            ->mapWithKeys(fn (RoutingRoute $route) => [
+            ->reject(fn(RoutingRoute $route) => is_null($route->getName()))
+            ->mapWithKeys(fn(RoutingRoute $route) => [
                 $route->getName() => [
                     'name' => $route->getName(),
                     'uri' => $route->uri(),
@@ -133,10 +150,12 @@ class LaravelPlaywrightController
                 ->first();
         }
 
-        if (! $user) {
-            $user = $this
-                ->factoryBuilder($this->userClassName($request), $request->input('state', []))
-                ->create();
+        if (!$user) {
+            $user = DB::transaction(function () use ($request) {
+                return $this
+                    ->factoryBuilder($this->userClassName($request), $request->input('state', []))
+                    ->create();
+            });
         }
 
         $user->load($request->input('load', []));
@@ -176,7 +195,7 @@ class LaravelPlaywrightController
                     $modelSeparator,
                     $stateSeparator
                 ) {
-                    if (! is_string($attribute) || ! str_contains($attribute, $stateSeparator)) {
+                    if (!is_string($attribute) || !str_contains($attribute, $stateSeparator)) {
                         return $attribute;
                     }
 
@@ -190,7 +209,7 @@ class LaravelPlaywrightController
                 $state = array_key_first($state);
             }
 
-            $factory = $factory->{$state}(...Arr::wrap($attributes));
+            $factory = $factory->{$state}(...$attributes);
         }
 
         return $factory;
@@ -225,18 +244,20 @@ class LaravelPlaywrightController
             ],
         ]);
 
-        return $this
-            ->factoryBuilder(
-                model: $request->input('model'),
-                states: $request->input('state') ?? []
-            )
-            ->count($request->integer('count', 1))
-            ->create($request->input('attributes'))
-            ->each(fn ($model) => $model->setHidden([])->setVisible([]))
-            ->load($request->input('load') ?? [])
-            ->pipe(fn ($collection) => $collection->count() > 1
-                ? $collection
-                : $collection->first());
+        return DB::transaction(function () use ($request) {
+            return $this
+                ->factoryBuilder(
+                    model: $request->input('model'),
+                    states: $request->input('state') ?? []
+                )
+                ->count($request->integer('count', 1))
+                ->create($request->input('attributes'))
+                ->each(fn($model) => $model->setHidden([])->setVisible([]))
+                ->load($request->input('load') ?? [])
+                ->pipe(fn($collection) => $collection->count() > 1
+                    ? $collection
+                    : $collection->first());
+        });
     }
 
     public function logout()
