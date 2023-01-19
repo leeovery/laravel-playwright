@@ -2,14 +2,14 @@
 
 namespace Leeovery\LaravelPlaywright\Http\Controllers;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route as RoutingRoute;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Routing\Route as RoutingRoute;
-use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class LaravelPlaywrightController
 {
@@ -119,11 +119,11 @@ class LaravelPlaywrightController
     public function routes()
     {
         return collect(Route::getRoutes()->getRoutes())
-            ->reject(fn(RoutingRoute $route) => Str::of($route->getName())
+            ->reject(fn (RoutingRoute $route) => Str::of($route->getName())
                 ->contains(config('laravel-playwright.route.ignore_names'))
             )
-            ->reject(fn(RoutingRoute $route) => is_null($route->getName()))
-            ->mapWithKeys(fn(RoutingRoute $route) => [
+            ->reject(fn (RoutingRoute $route) => is_null($route->getName()))
+            ->mapWithKeys(fn (RoutingRoute $route) => [
                 $route->getName() => [
                     'name' => $route->getName(),
                     'uri' => $route->uri(),
@@ -150,7 +150,7 @@ class LaravelPlaywrightController
                 ->first();
         }
 
-        if (!$user) {
+        if (! $user) {
             $user = DB::transaction(function () use ($request) {
                 return $this
                     ->factoryBuilder($this->userClassName($request), $request->input('state', []))
@@ -195,7 +195,7 @@ class LaravelPlaywrightController
                     $modelSeparator,
                     $stateSeparator
                 ) {
-                    if (!is_string($attribute) || !str_contains($attribute, $stateSeparator)) {
+                    if (! is_string($attribute) || ! str_contains($attribute, $stateSeparator)) {
                         return $attribute;
                     }
 
@@ -252,9 +252,9 @@ class LaravelPlaywrightController
                 )
                 ->count($request->integer('count', 1))
                 ->create($request->input('attributes'))
-                ->each(fn($model) => $model->setHidden([])->setVisible([]))
+                ->each(fn ($model) => $model->setHidden([])->setVisible([]))
                 ->load($request->input('load') ?? [])
-                ->pipe(fn($collection) => $collection->count() > 1
+                ->pipe(fn ($collection) => $collection->count() > 1
                     ? $collection
                     : $collection->first());
         });
