@@ -59,10 +59,10 @@ return [
         'user' => 'App\\Models\\User',
 
         /**
-         * When passing state values to the factory, you can include a model or model alias (see
+         * When passing state values to the factory, you can include a class or class alias (see
          * below) along with a value and column. This is handy for when the state method on the
-         * factory expects a model as the parameter. These config values will be used as the
-         * separators to split the model/alias from the id and column.
+         * factory expects an object as the parameter(s). These config values will be used as the
+         * separators to split the class/alias from the id and column.
          *
          * eg:
          * This will trigger the "first" eloquent method to execute with a "where"
@@ -78,12 +78,15 @@ return [
         'model_separator' => ':',
 
         /**
-         * You can optionally register aliases for your domain models rather than having
-         * to provide the fully namespaced class name, you can then provide the alias
-         * when creating entities via the factory endpoint.
+         * You can optionally register aliases for models or other objects, rather than having
+         * to provide the fully namespaced class name. You can then provide the alias
+         * when creating entities via the factory endpoint. You can also define here a function
+         * to instruct Laravel-Playwright how to construct an object with the parameters sent
+         * from your Playwright test suite.
          */
-        'models' => [
+        'aliases' => [
             // 'user' => 'App\\Models\\User',
+            // 'carbon' => fn($date) => \Carbon\Carbon::create($date),
         ],
 
     ],

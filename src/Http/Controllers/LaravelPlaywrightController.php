@@ -170,20 +170,20 @@ class LaravelPlaywrightController
     protected function userClassName(Request $request)
     {
         if ($request->has('userModel')) {
-            return $this->resolveModelAlias($request->input('userModel'));
+            return $this->resolveClassAlias($request->input('userModel'));
         }
 
         return config('laravel-playwright.factory.user');
     }
 
-    protected function resolveModelAlias(string $alias)
+    protected function resolveClassAlias(string $alias)
     {
-        return data_get(config('laravel-playwright.factory.models'), $alias, $alias);
+        return data_get(config('laravel-playwright.factory.aliases'), $alias, $alias);
     }
 
     protected function factoryBuilder($model, $states = []): Factory
     {
-        $factory = $this->resolveModelAlias($model)::factory();
+        $factory = $this->resolveClassAlias($model)::factory();
 
         $stateSeparator = config('laravel-playwright.factory.state_separator');
         $modelSeparator = config('laravel-playwright.factory.model_separator');
@@ -203,7 +203,7 @@ class LaravelPlaywrightController
                     [$id, $column] = array_pad(explode($modelSeparator, $id), 2, null);
                     $column ??= 'id';
 
-                    return $this->resolveModelAlias($model)::where($column, $id)->first();
+                    return $this->resolveClassAlias($model)::where($column, $id)->first();
                 })->filter()->all();
 
                 $state = array_key_first($state);
