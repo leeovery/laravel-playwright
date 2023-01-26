@@ -65,17 +65,62 @@ return [
          * separators to split the class/alias from the id and column.
          *
          * eg:
-         * This will trigger the "first" eloquent method to execute with a "where"
-         * for the user with an id of 100. This User will then be passed to the
-         * "createdBy" method on the factory.
+         * This will trigger the "first" eloquent method to execute with a "where" clause for
+         * the user with an id of 100. This User will then be passed to the "createdBy"
+         * method on the factory.
+         *
          * $state = [
          *     'createdBy' => [
          *         ['user@100:id'],
-         *     ]
+         *     ],
+         * ]
+         *
+         * Alternatively you could have passed the FQCN rather than the alias and left off the
+         * 'id' column because that's the default. As follows:
+         *
+         * $state = [
+         *     'createdBy' => [
+         *         ['\\App\\Models\\User@100'],
+         *     ],
+         * ]
+         *
+         * eg:
+         * This will use the `param_alias` commented out below to resolve the param for the endsAt
+         * state method on the factory as a Carbon instance with the value to the right of the
+         * separator. You can also pass multiple parameters to the state method that resolve using
+         * aliases as defined below. Parameters for the param_alias should be wrapped in square
+         * brackets as shown below.
+         *
+         * $state = [
+         *     'endsAt' => [
+         *         ['carbon@[2023-12-25 23:59:59]'],
+         *     ],
+         *     'liveBetween' => [
+         *         ['carbon@[2023-01-01 00:00:00]', 'carbon@[2023-12-25 23:59:59]'],
+         *     ],
+         *     'comments' => [
+         *         ['collect@[hello,goodbye]'],
+         *     ],
          * ]
          */
-        'state_separator' => '@',
-        'model_separator' => ':',
+
+        /**
+         * Used to separate the alias from any other passed options. Should be used first.
+         */
+        'alias_separator' => '@',
+
+        /**
+         * If passing multiple params to be passed into an aliases callable, you can separate
+         * them using this option.
+         */
+        'param_separator' => ',',
+
+        /**
+         * If you wish to resolve a model from the DB, you can optionally pass the column to compare
+         * the value to in a where clause. The default column used is `id`. Use this separator to
+         * separate the desired column from the rest of the passed options.
+         */
+        'column_separator' => ':',
 
         /**
          * You can optionally register aliases for models or other objects, rather than having
@@ -84,9 +129,14 @@ return [
          * to instruct Laravel-Playwright how to construct an object with the parameters sent
          * from your Playwright test suite.
          */
-        'aliases' => [
+        'model_aliases' => [
             // 'user' => 'App\\Models\\User',
+            // 'post' => 'App\\Models\\Post',
+        ],
+
+        'param_aliases' => [
             // 'carbon' => fn($date) => \Carbon\Carbon::create($date),
+            // 'collect' => fn($items) => \Illuminate\Support\Collection::make($items),
         ],
 
     ],
