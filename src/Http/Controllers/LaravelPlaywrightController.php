@@ -263,7 +263,11 @@ class LaravelPlaywrightController
 
             if (str_contains($attribute, '[') && str_contains($attribute, ']')) {
                 [$alias, $options] = explode($aliasSeparator, $attribute);
-                $options = str($options)->remove('[')->remove(']')->explode($paramSeparator);
+                $options = str($options)
+                    ->remove('[')
+                    ->remove(']')
+                    ->explode($paramSeparator)
+                    ->map(fn($option) => trim($option));
                 return value($this->resolveParamAlias($alias), ...$options);
             }
 
