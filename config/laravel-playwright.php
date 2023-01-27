@@ -149,20 +149,13 @@ return [
         'param_separator' => ',',
 
         /**
-         * You can optionally register aliases for models or other objects, rather than having
-         * to provide the fully namespaced class name. You can then provide the alias
-         * when creating entities via the factory endpoint. You can also define here a function
-         * to instruct Laravel-Playwright how to construct an object with the parameters sent
-         * from your Playwright test suite.
+         * You can optionally register aliases for models rather than having to provide the fully
+         * namespaced class name. You can then provide the alias when creating entities via the
+         * factory endpoint.
          */
         'model_aliases' => [
-            // 'User' => 'App\\Models\\User',
-            // 'Post' => 'App\\Models\\Post',
-        ],
-
-        'param_aliases' => [
-            // 'Carbon' => fn($date) => \Carbon\Carbon::create($date),
-            // 'collect' => fn($items) => collect(...$items),
+            // 'User' => '\App\Models\User::class',
+            // 'Post' => '\App\Models\Post::class',
         ],
 
     ],

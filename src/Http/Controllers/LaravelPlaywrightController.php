@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Leeovery\LaravelPlaywright\Exceptions\LaravelPlaywrightException;
+use Leeovery\LaravelPlaywright\Playwright;
 use Throwable;
 
 class LaravelPlaywrightController
@@ -309,7 +310,7 @@ class LaravelPlaywrightController
      */
     protected function resolveParamAlias(string $alias): callable
     {
-        $paramAlias = data_get(config('laravel-playwright.factory.param_aliases'), $alias);
+        $paramAlias = Playwright::getAlias($alias);
 
         throw_if(is_null($paramAlias),
             LaravelPlaywrightException::resolvedParamAliasDoesNotExist($alias)
