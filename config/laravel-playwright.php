@@ -77,7 +77,7 @@ return [
          *
          * $state = [
          *     'createdBy' => [
-         *         ['model.user:100,id'],
+         *         ['model.User:100,id'],
          *     ],
          * ]
          *
@@ -98,20 +98,20 @@ return [
          * aliases as defined below. Parameters for the param_alias should be wrapped in
          * parentheses as shown below.
          *
-         * This example will use the `carbon` alias (defined below - commented out) to make a
+         * This example will use the `Carbon` alias (defined below - commented out) to make a
          * `Carbon` instance with the value `2023-12-25 23:59:59`, and will be passed to the
          * `endsAt` method on the factory:
          * $state = [
          *     'endsAt' => [
-         *         ['carbon(2023-12-25 23:59:59)'],
+         *         ['Carbon(2023-12-25 23:59:59)'],
          *     ],
          * ]
          *
-         * This example will use the carbon alias to make 2 instances, each with the date values
+         * This example will use the Carbon alias to make 2 instances, each with the date values
          * as shown, and both instances will then be passed, in the order they are defined, to the `liveBetween` method on the factory class:
          * $state = [
          *     'liveBetween' => [
-         *         ['carbon(2023-01-01 00:00:00)', 'carbon(2023-12-25 23:59:59)'],
+         *         ['Carbon(2023-01-01 00:00:00)', 'Carbon(2023-12-25 23:59:59)'],
          *     ],
          * ]
          *
@@ -156,13 +156,13 @@ return [
          * from your Playwright test suite.
          */
         'model_aliases' => [
-            // 'user' => 'App\\Models\\User',
-            // 'post' => 'App\\Models\\Post',
+            // 'User' => 'App\\Models\\User',
+            // 'Post' => 'App\\Models\\Post',
         ],
 
         'param_aliases' => [
-            // 'carbon' => fn($date) => \Carbon\Carbon::create($date),
-            // 'collect' => fn($items) => \Illuminate\Support\Collection::make(...$items),
+            // 'Carbon' => fn($date) => \Carbon\Carbon::create($date),
+            // 'collect' => fn($items) => collect(...$items),
         ],
 
     ],
