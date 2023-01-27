@@ -2,14 +2,16 @@
 
 namespace Leeovery\LaravelPlaywright\Http\Controllers;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route as RoutingRoute;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Routing\Route as RoutingRoute;
-use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+use Leeovery\LaravelPlaywright\Exceptions\LaravelPlaywrightException;
+use Throwable;
 
 class LaravelPlaywrightController
 {
@@ -119,11 +121,11 @@ class LaravelPlaywrightController
     public function routes()
     {
         return collect(Route::getRoutes()->getRoutes())
-            ->reject(fn(RoutingRoute $route) => Str::of($route->getName())
+            ->reject(fn (RoutingRoute $route) => Str::of($route->getName())
                 ->contains(config('laravel-playwright.route.ignore_names'))
             )
-            ->reject(fn(RoutingRoute $route) => is_null($route->getName()))
-            ->mapWithKeys(fn(RoutingRoute $route) => [
+            ->reject(fn (RoutingRoute $route) => is_null($route->getName()))
+            ->mapWithKeys(fn (RoutingRoute $route) => [
                 $route->getName() => [
                     'name' => $route->getName(),
                     'uri' => $route->uri(),
@@ -150,7 +152,7 @@ class LaravelPlaywrightController
                 ->first();
         }
 
-        if (!$user) {
+        if (! $user) {
             $user = DB::transaction(function () use ($request) {
                 return $this
                     ->factoryBuilder($this->userClassName($request), $request->input('state', []))
@@ -176,11 +178,23 @@ class LaravelPlaywrightController
         return config('laravel-playwright.factory.user');
     }
 
+    /**
+     * @throws Throwable
+     */
     protected function resolveModelAlias(string $alias)
     {
-        return data_get(config('laravel-playwright.factory.model_aliases'), $alias, $alias);
+        $model = data_get(config('laravel-playwright.factory.model_aliases'), $alias, $alias);
+
+        throw_unless(class_exists($model),
+            LaravelPlaywrightException::resolvedModelDoesNotExist($model)
+        );
+
+        return $model;
     }
 
+    /**
+     * @throws Throwable
+     */
     protected function factoryBuilder($model, $states = []): Factory
     {
         $factory = $this->resolveModelAlias($model)::factory();
@@ -188,7 +202,7 @@ class LaravelPlaywrightController
         foreach (Arr::wrap($states) as $state) {
             $attributes = [];
             if (is_array($state)) {
-                $attributes = $this->buildUpStateAttributes($state);
+                $attributes = $this->resolveStateAttributes($state);
                 $state = array_key_first($state);
             }
             $factory = $factory->{$state}(...$attributes);
@@ -234,54 +248,71 @@ class LaravelPlaywrightController
                 )
                 ->count($request->integer('count', 1))
                 ->create($request->input('attributes'))
-                ->each(fn($model) => $model->setHidden([])->setVisible([]))
+                ->each(fn ($model) => $model->setHidden([])->setVisible([]))
                 ->load($request->input('load') ?? [])
-                ->pipe(fn($collection) => $collection->count() > 1
+                ->pipe(fn ($collection) => $collection->count() > 1
                     ? $collection
                     : $collection->first());
         });
     }
 
-    protected function buildUpStateAttributes($state): array
+    protected function resolveStateAttributes($state): array
     {
-        if (!is_array($state)) {
+        if (! is_array($state)) {
             return [];
         }
 
-        $aliasSeparator = config('laravel-playwright.factory.alias_separator');
-        $paramSeparator = config('laravel-playwright.factory.param_separator');
+        $modelDesignator = config('laravel-playwright.factory.model_designator');
+        $modelSeparator = config('laravel-playwright.factory.model_separator');
         $columnSeparator = config('laravel-playwright.factory.column_separator');
+        $paramSeparator = config('laravel-playwright.factory.param_separator');
 
         return collect(...array_values($state))->map(function ($attribute) use (
+            $modelDesignator,
+            $modelSeparator,
             $columnSeparator,
             $paramSeparator,
-            $aliasSeparator
         ) {
-            if (!is_string($attribute) || !str_contains($attribute, $aliasSeparator)) {
+            if (
+                ! is_string($attribute)
+                || ! str_contains($attribute, $modelDesignator)
+                || (! str_contains($attribute, '(') && ! str_contains($attribute, ')'))
+            ) {
                 return $attribute;
             }
 
-            if (str_contains($attribute, '[') && str_contains($attribute, ']')) {
-                [$alias, $options] = explode($aliasSeparator, $attribute);
-                $options = str($options)
-                    ->remove('[')
-                    ->remove(']')
+            if (str_contains($attribute, '(') && str_contains($attribute, ')')) {
+                $paramAlias = Str::before($attribute, '(');
+                $params = str($attribute)
+                    ->between('(', ')')
                     ->explode($paramSeparator)
-                    ->map(fn($option) => trim($option));
-                return value($this->resolveParamAlias($alias), ...$options);
+                    ->map(fn ($option) => trim($option));
+
+                return value($this->resolveParamAlias($paramAlias), ...$params);
             }
 
-            [$modelAlias, $options] = explode($aliasSeparator, $attribute);
+            $attribute = Str::after($attribute, $modelDesignator);
+
+            [$model, $options] = explode($modelSeparator, $attribute);
             [$value, $column] = array_pad(explode($columnSeparator, $options), 2, null);
             $column ??= 'id';
 
-            return $this->resolveModelAlias($modelAlias)::where($column, $value)->first();
+            return $this->resolveModelAlias($model)::where($column, $value)->first();
         })->filter()->all();
     }
 
+    /**
+     * @throws Throwable
+     */
     protected function resolveParamAlias(string $alias): callable
     {
-        return data_get(config('laravel-playwright.factory.param_aliases'), $alias, $alias);
+        $paramAlias = data_get(config('laravel-playwright.factory.param_aliases'), $alias);
+
+        throw_if(is_null($paramAlias),
+            LaravelPlaywrightException::resolvedParamAliasDoesNotExist($alias)
+        );
+
+        return $paramAlias;
     }
 
     public function logout()
