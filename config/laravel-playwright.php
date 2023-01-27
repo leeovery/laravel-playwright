@@ -2,6 +2,13 @@
 
 return [
 
+    /**
+     * Comma seperated list of valid environments which you want the Laravel Playwright
+     * routes exposed for. Any requests made to the routes in an environment which is
+     * not in this list will be rejected.
+     */
+    'environments' => env('LARAVEL_PLAYWRIGHT_PERMITTED_ENVIRONMENTS', 'local,testing,playwright'),
+
     'route' => [
 
         /**
@@ -52,12 +59,110 @@ return [
         'user' => 'App\\Models\\User',
 
         /**
-         * You can optionally register aliases for your domain models rather than having
-         * to provide the fully namespaced class name, you can then provide the alias
-         * when creating entities via the factory endpoint.
+         * When passing state values to the factory, you can include a FQCN or class alias (see
+         * below) along with a value and column, or params (if param_alias). This is handy for
+         * when the state method on the factory expects an object as the parameter(s). The
+         * separator config values defined below will be used as the detectors and
+         * separators to split the class/alias from the passed options/params.
+         *
+         * When passing a model or model alias, you should prefix the model definition with
+         * 'model.' (can be changed as desired below) so that we can differentiate it from
+         * a param alias.
+         *
+         * ** To fetch a model and pass to the state method: **
+         *
+         * This will trigger the "first" eloquent method to execute with a "where" clause for
+         * the user with an `id` of 100. This fetched and hydrated `User` will then be passed
+         * to your "createdBy" method on the defined factory.
+         *
+         * $state = [
+         *     'createdBy' => [
+         *         ['model.User:100,id'],
+         *     ],
+         * ]
+         *
+         * Alternatively you could have passed the FQCN rather than the alias and left off the
+         * 'id' column because that's the default. As follows:
+         *
+         * $state = [
+         *     'createdBy' => [
+         *         ['model.\\App\\Models\\User:100'],
+         *     ],
+         * ]
+         *
+         * ** To construct an object with params to be passed to the state method: **
+         *
+         * This will use a `param_alias` (defined below) to resolve the param for the `endsAt`
+         * state method on the factory as a Carbon instance with the value to the right of the
+         * separator. You can also pass multiple parameters to the state method that resolve using
+         * aliases as defined below. Parameters for the param_alias should be wrapped in
+         * parentheses as shown below.
+         *
+         * This example will use the `Carbon` alias (defined below - commented out) to make a
+         * `Carbon` instance with the value `2023-12-25 23:59:59`, and will be passed to the
+         * `endsAt` method on the factory:
+         * $state = [
+         *     'endsAt' => [
+         *         ['Carbon(2023-12-25 23:59:59)'],
+         *     ],
+         * ]
+         *
+         * This example will use the Carbon alias to make 2 instances, each with the date values
+         * as shown, and both instances will then be passed, in the order they are defined, to the `liveBetween` method on the factory class:
+         * $state = [
+         *     'liveBetween' => [
+         *         ['Carbon(2023-01-01 00:00:00)', 'Carbon(2023-12-25 23:59:59)'],
+         *     ],
+         * ]
+         *
+         * This example will use the collect alias to make a Collection with 2 items as defined.
+         * The Collection instance will then be passed to the comments method on the factory:
+         * $state = [
+         *     'comments' => [
+         *         ['collect(hello,goodbye)'],
+         *     ],
+         * ]
          */
-        'models' => [
-            // 'user' => 'App\\Models\\User',
+
+        /**
+         * Used to tell the package you want a model created, either from the passed FQCN or
+         * from the model_alias as defined below.
+         */
+        'model_designator' => 'model.',
+
+        /**
+         * Used to separate the model from any other passed options.
+         */
+        'model_separator' => ':',
+
+        /**
+         * If you wish to resolve a model from the DB, you can optionally pass the column to compare
+         * the value to in a where clause. The default column used is `id`. Use this separator to
+         * separate the desired column from the rest of the passed options.
+         */
+        'column_separator' => ',',
+
+        /**
+         * If passing multiple params to be passed into an alias' callable, you can separate
+         * them using this option.
+         */
+        'param_separator' => ',',
+
+        /**
+         * You can optionally register aliases for models or other objects, rather than having
+         * to provide the fully namespaced class name. You can then provide the alias
+         * when creating entities via the factory endpoint. You can also define here a function
+         * to instruct Laravel-Playwright how to construct an object with the parameters sent
+         * from your Playwright test suite.
+         */
+        'model_aliases' => [
+            // 'User' => 'App\\Models\\User',
+            // 'Post' => 'App\\Models\\Post',
+        ],
+
+        'param_aliases' => [
+            // 'Carbon' => fn($date) => \Carbon\Carbon::create($date),
+            // 'collect' => fn($items) => collect(...$items),
         ],
 
     ],
