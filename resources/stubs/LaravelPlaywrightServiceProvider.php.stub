@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+
+class LaravelPlaywrightServiceProvider extends ServiceProvider
+{
+    public function register()
+    {
+        //
+    }
+
+    public function boot()
+    {
+        // Playwright::alias('Carbon', fn(string $date) => \Carbon\Carbon::create($date));
+        // Playwright::alias('collect', fn($items) => collect(...$items));
+    }
+}
