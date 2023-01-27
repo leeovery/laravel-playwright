@@ -125,6 +125,12 @@ return [
          */
 
         /**
+         * Used to tell the package you want a model created, either from the passed FQCN or
+         * from the model_alias as defined below.
+         */
+        'model_designator' => 'model.',
+
+        /**
          * Used to separate the model from any other passed options.
          */
         'model_separator' => ':',

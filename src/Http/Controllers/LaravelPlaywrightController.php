@@ -169,6 +169,9 @@ class LaravelPlaywrightController
         });
     }
 
+    /**
+     * @throws Throwable
+     */
     protected function userClassName(Request $request)
     {
         if ($request->has('userModel')) {
@@ -274,9 +277,9 @@ class LaravelPlaywrightController
             $paramSeparator,
         ) {
             if (
-                ! is_string($attribute)
-                || ! str_contains($attribute, $modelDesignator)
-                || (! str_contains($attribute, '(') && ! str_contains($attribute, ')'))
+                ! (is_string($attribute)
+                    && (str_contains($attribute, $modelDesignator)
+                        || (str_contains($attribute, '(') && str_contains($attribute, ')'))))
             ) {
                 return $attribute;
             }
