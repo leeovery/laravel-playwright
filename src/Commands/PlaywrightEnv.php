@@ -5,7 +5,7 @@ namespace Leeovery\LaravelPlaywright\Commands;
 use Dotenv\Dotenv;
 use Illuminate\Console\Command;
 
-abstract class LaravelPlaywrightEnv extends Command
+abstract class PlaywrightEnv extends Command
 {
     protected string $backupEnvName = '.env.backup';
 
@@ -25,7 +25,7 @@ abstract class LaravelPlaywrightEnv extends Command
 
     protected function getPlaywrightEnvFile(): string
     {
-        $envName = config('laravel-playwright.env.name');
+        $envName = config('playwright.env.name');
         if (file_exists(base_path($file = "{$envName}.{$this->laravel->environment()}"))) {
             return $file;
         }

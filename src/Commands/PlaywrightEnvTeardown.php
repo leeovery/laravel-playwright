@@ -2,7 +2,7 @@
 
 namespace Leeovery\LaravelPlaywright\Commands;
 
-class LaravelPlaywrightEnvTeardown extends LaravelPlaywrightEnv
+class PlaywrightEnvTeardown extends PlaywrightEnv
 {
     protected $signature = 'playwright:env-teardown';
 

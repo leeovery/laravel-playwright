@@ -46,7 +46,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Leeovery\\LaravelPlaywright\\LaravelPlaywrightServiceProvider"
+        "Leeovery\\LaravelPlaywright\\PlaywrightServiceProvider"
       ]
     }
   }

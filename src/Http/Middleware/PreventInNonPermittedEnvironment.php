@@ -8,7 +8,7 @@ class PreventInNonPermittedEnvironment
 {
     public function handle($request, Closure $next)
     {
-        $permitted = str(config('laravel-playwright.environments'))
+        $permitted = str(config('playwright.environments'))
             ->explode(',')
             ->collect()
             ->filter(fn (string $environment) => app()->environment($environment));
