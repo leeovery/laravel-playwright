@@ -4,24 +4,24 @@ namespace Leeovery\LaravelPlaywright;
 
 use Leeovery\LaravelPlaywright\Commands\Database\CreateDatabaseCommand;
 use Leeovery\LaravelPlaywright\Commands\Database\DropDatabaseCommand;
-use Leeovery\LaravelPlaywright\Commands\LaravelPlaywrightEnvSetup;
-use Leeovery\LaravelPlaywright\Commands\LaravelPlaywrightEnvTeardown;
+use Leeovery\LaravelPlaywright\Commands\PlaywrightEnvSetup;
+use Leeovery\LaravelPlaywright\Commands\PlaywrightEnvTeardown;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider as ServiceProvider;
 
-class LaravelPlaywrightServiceProvider extends ServiceProvider
+class PlaywrightServiceProvider extends ServiceProvider
 {
     public function configurePackage(Package $package): void
     {
         $package
             ->name('laravel-playwright')
-            ->hasConfigFile('laravel-playwright')
+            ->hasConfigFile()
             ->hasRoute('playwright')
-            ->publishesServiceProvider('LaravelPlaywrightServiceProvider')
+            ->publishesServiceProvider('PlaywrightServiceProvider')
             ->hasCommands(
-                LaravelPlaywrightEnvSetup::class,
-                LaravelPlaywrightEnvTeardown::class,
+                PlaywrightEnvSetup::class,
+                PlaywrightEnvTeardown::class,
                 CreateDatabaseCommand::class,
                 DropDatabaseCommand::class,
             )

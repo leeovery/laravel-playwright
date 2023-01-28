@@ -2,7 +2,7 @@
 
 namespace Leeovery\LaravelPlaywright\Commands;
 
-class LaravelPlaywrightEnvSetup extends LaravelPlaywrightEnv
+class PlaywrightEnvSetup extends PlaywrightEnv
 {
     protected $signature = 'playwright:env-setup';
 

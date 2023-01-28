@@ -123,7 +123,7 @@ class LaravelPlaywrightController
     {
         return collect(Route::getRoutes()->getRoutes())
             ->reject(fn (RoutingRoute $route) => Str::of($route->getName())
-                ->contains(config('laravel-playwright.route.ignore_names'))
+                ->contains(config('playwright.route.ignore_names'))
             )
             ->reject(fn (RoutingRoute $route) => is_null($route->getName()))
             ->mapWithKeys(fn (RoutingRoute $route) => [
@@ -179,7 +179,7 @@ class LaravelPlaywrightController
             return $this->resolveModelAlias($request->input('userModel'));
         }
 
-        return config('laravel-playwright.factory.user');
+        return config('playwright.factory.user');
     }
 
     /**
@@ -187,7 +187,7 @@ class LaravelPlaywrightController
      */
     protected function resolveModelAlias(string $alias)
     {
-        $model = data_get(config('laravel-playwright.factory.model_aliases'), $alias, $alias);
+        $model = data_get(config('playwright.factory.model_aliases'), $alias, $alias);
 
         throw_unless(class_exists($model),
             LaravelPlaywrightException::resolvedModelDoesNotExist($model)
@@ -266,10 +266,10 @@ class LaravelPlaywrightController
             return [];
         }
 
-        $modelDesignator = config('laravel-playwright.factory.model_designator');
-        $modelSeparator = config('laravel-playwright.factory.model_separator');
-        $columnSeparator = config('laravel-playwright.factory.column_separator');
-        $paramSeparator = config('laravel-playwright.factory.param_separator');
+        $modelDesignator = config('playwright.factory.model_designator');
+        $modelSeparator = config('playwright.factory.model_separator');
+        $columnSeparator = config('playwright.factory.column_separator');
+        $paramSeparator = config('playwright.factory.param_separator');
 
         return collect(...array_values($state))->map(function ($attribute) use (
             $modelDesignator,
