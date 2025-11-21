@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Leeovery\LaravelPlaywright\Commands;
 
 class PlaywrightEnvSetup extends PlaywrightEnv
@@ -8,7 +10,7 @@ class PlaywrightEnvSetup extends PlaywrightEnv
 
     protected $description = 'Setup temp env for frontend Playwright test suite.';
 
-    public function handle()
+    public function handle(): void
     {
         if (! file_exists($envFile = base_path($this->getPlaywrightEnvFile()))) {
             return;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Leeovery\LaravelPlaywright;
 
 use Closure;
@@ -15,7 +17,7 @@ class Playwright
         return new static;
     }
 
-    public static function getAlias(string $alias): callable|null
+    public static function getAlias(string $alias): ?callable
     {
         return data_get(static::$aliasCallbacks, $alias);
     }

@@ -1,16 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Leeovery\LaravelPlaywright\Commands\Database\Connectors;
 
 use PDO;
 
 readonly class PDOConnector implements Connector
 {
-    public function __construct(private PDO $pdo)
-    {
-    }
+    public function __construct(private PDO $pdo) {}
 
-    public static function make(array $config): PDOConnector
+    public static function make(array $config): self
     {
         $host = sprintf(
             '%s:host=%s',

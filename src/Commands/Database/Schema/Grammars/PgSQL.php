@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Leeovery\LaravelPlaywright\Commands\Database\Schema\Grammars;
 
 class PgSQL implements SQL

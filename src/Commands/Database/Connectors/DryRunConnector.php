@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Leeovery\LaravelPlaywright\Commands\Database\Connectors;
 
 class DryRunConnector implements Connector
 {
-    public function __construct(private $output)
-    {
-    }
+    public function __construct(private $output) {}
 
     public function exec(string $sql)
     {

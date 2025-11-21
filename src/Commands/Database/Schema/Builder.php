@@ -1,14 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Leeovery\LaravelPlaywright\Commands\Database\Schema;
 
 use Leeovery\LaravelPlaywright\Commands\Database\Connectors\Connector;
 
 readonly class Builder
 {
-    public function __construct(private Connector $connector, private GrammarFactory $grammars)
-    {
-    }
+    public function __construct(private Connector $connector, private GrammarFactory $grammars) {}
 
     public function dropDatabase(array $options)
     {

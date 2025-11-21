@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Leeovery\LaravelPlaywright;
 
 use Leeovery\LaravelPlaywright\Commands\Database\CreateDatabaseCommand;
@@ -25,7 +27,7 @@ class PlaywrightServiceProvider extends ServiceProvider
                 CreateDatabaseCommand::class,
                 DropDatabaseCommand::class,
             )
-            ->hasInstallCommand(function (InstallCommand $command) {
+            ->hasInstallCommand(function (InstallCommand $command): void {
                 $command
                     ->publishConfigFile()
                     ->copyAndRegisterServiceProviderInApp()

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Leeovery\LaravelPlaywright\Http\Controllers;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -98,7 +100,7 @@ class LaravelPlaywrightController
             ],
         ]);
 
-        str($request->input('tables'))->explode(',')->each(function (string $table) {
+        str($request->input('tables'))->explode(',')->each(function (string $table): void {
             DB::table($table)->truncate();
         });
 
@@ -163,7 +165,7 @@ class LaravelPlaywrightController
 
         $user->load($request->input('load', []));
 
-        return tap($user, function ($user) {
+        return tap($user, function ($user): void {
             auth()->login($user);
 
             $user->setHidden([])->setVisible([]);
@@ -189,7 +191,8 @@ class LaravelPlaywrightController
     {
         $model = data_get(config('playwright.factory.model_aliases'), $alias, $alias);
 
-        throw_unless(class_exists($model),
+        throw_unless(
+            class_exists($model),
             LaravelPlaywrightException::resolvedModelDoesNotExist($model)
         );
 
@@ -290,7 +293,7 @@ class LaravelPlaywrightController
                 $params = str($attribute)
                     ->between('(', ')')
                     ->explode($paramSeparator)
-                    ->map(fn ($option) => trim($option));
+                    ->map(fn ($option) => mb_trim($option));
 
                 return value($this->resolveParamAlias($paramAlias), ...$params);
             }
@@ -312,7 +315,8 @@ class LaravelPlaywrightController
     {
         $paramAlias = Playwright::getAlias($alias);
 
-        throw_if(is_null($paramAlias),
+        throw_if(
+            is_null($paramAlias),
             LaravelPlaywrightException::resolvedParamAliasDoesNotExist($alias)
         );
 

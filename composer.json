@@ -16,15 +16,18 @@
     }
   ],
   "require": {
-    "php": "^8.2",
-    "illuminate/support": "^v9.0.2|^10.0",
+    "php": "^8.3",
+    "illuminate/support": "^11.0",
     "spatie/laravel-package-tools": "^1.14",
     "ext-pdo": "*"
   },
   "require-dev": {
     "laravel/pint": "^1.4",
-    "orchestra/testbench": "^v7.0|v8.0",
-    "phpunit/phpunit": "^9.3"
+    "orchestra/testbench": "^9.0",
+    "pestphp/pest": "*",
+    "phpunit/phpunit": "^11.0",
+    "rector/rector": "^2.2",
+    "rector/rector-laravel": "^2.1"
   },
   "autoload": {
     "psr-4": {
@@ -37,11 +40,22 @@
     }
   },
   "scripts": {
-    "test": "vendor/bin/phpunit",
-    "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    "post-autoload-dump": [
+      "@clear",
+      "@prepare"
+    ],
+    "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+    "prepare": "@php vendor/bin/testbench package:discover --ansi",
+    "test": "./vendor/bin/pest",
+    "test-coverage": "./vendor/bin/pest --coverage",
+    "pint": "./vendor/bin/pint",
+    "rector": "./vendor/bin/rector"
   },
   "config": {
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
   },
   "extra": {
     "laravel": {

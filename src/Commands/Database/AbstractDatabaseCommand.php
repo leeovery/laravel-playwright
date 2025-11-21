@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Leeovery\LaravelPlaywright\Commands\Database;
 
 use Illuminate\Console\Command;
@@ -13,7 +15,7 @@ abstract class AbstractDatabaseCommand extends Command
 {
     protected array $config = [];
 
-    protected function showIfPretendMode()
+    protected function showIfPretendMode(): void
     {
         if ($this->isPretendRunMode()) {
             $this->info('[PRETENDING] Running in pretend mode.');
@@ -42,7 +44,7 @@ abstract class AbstractDatabaseCommand extends Command
         return PDOConnector::make($this->getConfig());
     }
 
-    protected function getConfig(string $key = null): mixed
+    protected function getConfig(?string $key = null): mixed
     {
         if (! $this->config) {
             $connection = $this->option('connection') ?? config('database.default');
